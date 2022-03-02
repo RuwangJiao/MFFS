@@ -8,7 +8,7 @@ function PartitionSet = CalPartitionPoint(Population, FrontNo, Pset)
     Fmin         = min(PopObj(Front, :), [], 1);
     [~, Rank] = sortrows(PopObj(Front, 1));
     for j = 1 : length(Front) - 1
-        CrowdAngle(Front(Rank(j)), Front(Rank(j+1))) = pdist2((PopObj(Front(Rank(j+1)),:) - Fmin), (PopObj(Front(Rank(j)),:) - Fmin), 'cosine');
+        CrowdAngle(Front(Rank(j)), Front(Rank(j+1))) = acos(1-pdist2((PopObj(Front(Rank(j+1)),:) - Fmin), (PopObj(Front(Rank(j)),:) - Fmin), 'cosine'));
     end
     
     if length(Front)==1
