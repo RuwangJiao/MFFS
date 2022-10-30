@@ -130,17 +130,12 @@ classdef FeatureSelectionNoisy < PROBLEM
             Data = load(str{dataNo});
             obj.dataNo = dataNo;
             obj.boolTrain = 1;
-
-
-%             Data.X = Data.ins;
-%             Data.Y = Data.lab;
             
             %% Shuffle the order of instances
             rng(1);   %Fix the random number seed
             randIndex = randperm(size(Data.X, 1));
             Data.X = Data.X(randIndex',:);
             Data.Y = Data.Y(randIndex',:);
-
 
             %% Add noise to each feature
             noiseIndex = randperm(size(Data.X, 2), round(NoiseLevel./100.*size(Data.X, 2)));
@@ -220,12 +215,6 @@ classdef FeatureSelectionNoisy < PROBLEM
                 end 
             else
                 %%%%% For test set %%%%%
-%                 PopDec = zeros(size(PopDec,1), size(PopDec,2));
-%                 idx = [277 424 333 229 155 228];
-%                 num_fea = 1;
-%                 PopDec(:, idx(1:num_fea))=1;
-%                 %%%%%%%%%%%%%%%%%%%%%%%%
-
                 PopDec = logical(PopDec);
                 for i = 1 : size(PopObj, 1)
                     [~, Rank] = sort(pdist2(obj.ValidIn(:, PopDec(i, :)), obj.TrainIn(:, PopDec(i, :))), 2);
@@ -250,26 +239,7 @@ classdef FeatureSelectionNoisy < PROBLEM
                 end 
             end
         end
-        
-        %% Calculate constraints
-%         function PopCon = CalCon(obj, PopDec)
-%             PopObj      = obj.CalObj(PopDec);
-%             ind         = ones(1, obj.D);   % The feature subset that select all features
-%             [~, Rank]   = sort(pdist2(obj.TrainIn(:, ind), obj.TrainIn(:, ind)), 2);
-%             [~, Out]    = max(hist(double(obj.TrainOut(Rank(:, 1:obj.K))'), double(obj.Category)), [], 1);
-%             Acc         = mean(obj.Category(Out)==obj.TrainOut);
-%             Err         = 1 - Acc;
-%             PopCon(:,1) = PopObj(:,1) - Err; % The classification error should smaller than that of using all features
-%         end
-        
-        %% Generate points on the Pareto front
-%         function R = GetOptimum(obj, N)
-%             %addpath(genpath('scripts'));
-%             dataNo = obj.dataNo;
-%             fullfile = ['FS_', num2str(dataNo), '.mat'];
-%             P = load(fullfile);
-%             R = P.NDpoints;
-%         end 
+       
         %% Display a population in the objective space
         function DrawObj(obj, Population)
             Draw(Population.objs, {'Classification error rate', 'Selected feature ratio', []});
