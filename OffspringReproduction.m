@@ -16,8 +16,6 @@ function Offspring = OffspringReproduction(Parent, Pop)
     switch Problem.encoding
         case 'binary'
             %% Genetic operators for binary encoding
-            % Uniform crossover
-            %k = rand(N,D) < 0.5;
             % One point crossover
             k = repmat(1:D,N,1) > repmat(randi(D,N,1),1,D);
             k(repmat(rand(N,1)>proC,1,D)) = false;
@@ -29,25 +27,6 @@ function Offspring = OffspringReproduction(Parent, Pop)
             % Bit-flip mutation
             Site = rand(2*N,D) < proM/D;
             Offspring(Site) = ~Offspring(Site);
-        case 'permutation'
-            %% Genetic operators for permutation based encoding
-            % Order crossover
-            Offspring = [Parent1;Parent2];
-            k = randi(D,1,2*N);
-            for i = 1 : N
-                Offspring(i,k(i)+1:end)   = setdiff(Parent2(i,:),Parent1(i,1:k(i)),'stable');
-                Offspring(i+N,k(i)+1:end) = setdiff(Parent1(i,:),Parent2(i,1:k(i)),'stable');
-            end
-            % Slight mutation
-            k = randi(D,1,2*N);
-            s = randi(D,1,2*N);
-            for i = 1 : 2*N
-                if s(i) < k(i)
-                    Offspring(i,:) = Offspring(i,[1:s(i)-1,k(i),s(i):k(i)-1,k(i)+1:end]);
-                elseif s(i) > k(i)
-                    Offspring(i,:) = Offspring(i,[1:k(i)-1,k(i)+1:s(i)-1,k(i),s(i):end]);
-                end
-            end
         otherwise
             %% Genetic operators for real encoding
             % Simulated binary crossover
