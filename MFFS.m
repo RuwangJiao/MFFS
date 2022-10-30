@@ -1,11 +1,11 @@
 classdef MFFS < ALGORITHM
 % <multi> <binary> <constrained/none>
-% Multiform optimization for feature selection
+% Multiform optimization for multi-objective feature selection in classification
 
 %------------------------------- Reference --------------------------------
-% K. Deb, A. Pratap, S. Agarwal, and T. Meyarivan, A fast and elitist
-% multiobjective genetic algorithm: NSGA-II, IEEE Transactions on
-% Evolutionary Computation, 2002, 6(2): 182-197.
+% R. Jiao, B. Xue, and M. Zhang, Benefiting from single-objective feature 
+% selection to multi-objective feature selection: A multiform approach, 
+% IEEE Transactions on Cybernetics, 2022, 1-14.
 %------------------------------- Copyright --------------------------------
 % Copyright (c) 2021 BIMK Group. You are free to use the PlatEMO for
 % research purposes. All publications which use this platform or any code
@@ -54,13 +54,7 @@ classdef MFFS < ALGORITHM
                 if flag==1
                     [SubPop1, Fitness1, SubPop2, Fitness2] = ReInitialization(Population, N1, N2, alphaSet, Fmin);
                 end
-                
-                
-                %%%%% Applied to the test set %%%%%
-                %diversity = DiversityMeasure(Population);
-                %disp(diversity);
-                Population = FSTestCOP(Problem, Population);
-                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                % Population = FSTestCOP(Problem, Population); % Apply to the test set
             end
         end
     end
@@ -72,8 +66,6 @@ function [alphaSet, PartitionSet] = CalWeight(PartitionSet, alphaSet, Population
     if flag == 1
         PartitionSet = CalPartitionPoint(Population, FrontNo, PartitionSet);
         alphaSet = UpdateWeight(PartitionSet, Fmin);
-        fprintf('Alpha1: %f\n', alphaSet(1,:));
-        fprintf('Alpha2: %f\n', alphaSet(2,:));
     else
         if ~isequal(alphaSet, [0.99; 0.01])
             alphaSet = UpdateWeight(PartitionSet, Fmin);
@@ -129,7 +121,6 @@ function [SubPop1, Fitness1, SubPop2, Fitness2] = ReInitialization(Pop, N1, N2, 
     [SubPop2, Fitness2] = EnvironmentalSelectionSOP(Population, N2, alphaSet(2,:), Fmin);
 end
 
-%3,11,14,16,17,21,23,27,29,31,33, 43,45,46,47,52,53,55
 function [flag, BestFitnessSet] = boolImprovement(BestFitnessSet, bestF, gen)
     % Judge whether the best fitness has improved in gen generations
     flag = 0;
