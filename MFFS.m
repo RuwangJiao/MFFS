@@ -1,10 +1,10 @@
 classdef MFFS < ALGORITHM
-% <multi> <binary> <constrained/none>
-% Multiform optimization for multi-objective feature selection in classification
+% <multi> <binary> <none>
+% Multiform optimization for multiobjective feature selection in classification
 
 %------------------------------- Reference --------------------------------
 % R. Jiao, B. Xue, and M. Zhang, Benefiting from single-objective feature 
-% selection to multi-objective feature selection: A multiform approach, 
+% selection to multiobjective feature selection: A multiform approach, 
 % IEEE Transactions on Cybernetics, 2022, 1-14.
 %------------------------------- Copyright --------------------------------
 % Copyright (c) 2021 BIMK Group. You are free to use the PlatEMO for
