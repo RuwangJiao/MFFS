@@ -1,4 +1,4 @@
-# Benefiting from single-objective feature selection to multi-objective feature selection: A multiform approach
+# Benefiting from single-objective feature selection to multiobjective feature selection: A multiform approach
 This is the MFFS code for solving multi-objective feature selection problems in classification.
 
 # Acknowledge
