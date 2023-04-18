@@ -1,10 +1,10 @@
 classdef FeatureSelectionNoisy < PROBLEM
 % <multi> <real/binary> <sparse/none> 
 % The feature selection problem with noise (balance accuracy calculation)
-% dataNo --- 20 --- Number of dataset
-% encode --- 1 --- Encoding method
-% ObjectiveNo --- 2 --- Number of objectives
-% NoiseLevel --- 0 --- Percentage(%) noise added 
+% dataNo -------- 20 --- Number of dataset
+% encode -------- 1 ---- Encoding method
+% ObjectiveNo --- 2 ---- Number of objectives
+% NoiseLevel ---- 0 ---- Percentage(%) noise added 
 
 %------------------------------- Reference --------------------------------
 % Copyright (c) 2021 BIMK Group. You are free to use the PlatEMO for
@@ -90,8 +90,8 @@ classdef FeatureSelectionNoisy < PROBLEM
     properties(Access = private)
         TrainIn;    % Input of training set
         TrainOut;   % Output of training set
-        TestIn;    % Input of validation set
-        TestOut;   % Output of validation set
+        TestIn;     % Input of validation set
+        TestOut;    % Output of validation set
         Category;   % Output label set
         indices;
         dataNo;
@@ -100,7 +100,7 @@ classdef FeatureSelectionNoisy < PROBLEM
     end
 
     properties(Access = public)
-        boolTrain; % 1 means apply the data to the training set, otherwise to the test set
+        boolTrain;  % 1 means apply the data to the training set, otherwise to the test set
         TrainX;
         TrainY;
     end
@@ -177,24 +177,24 @@ classdef FeatureSelectionNoisy < PROBLEM
             PopObj  = zeros(size(PopDec, 1), obj.M);
             if obj.boolTrain == 1   % To judge whether in the training set or the test set
                 %%%%% For training set %%%%%
-                theta = 0.5;     % The threshold to determine whether a feature is selected or discarded
+                theta = 0.5;        % The threshold to determine whether a feature is selected or discarded
                 PopDec(PopDec < theta)  = 0 ;
                 PopDec(PopDec >= theta) = 1;
                 PopDec = logical(PopDec);                 
                 for i = 1 : size(PopObj,1)
                     sumAccuracyRatio = 0;
                     for j = 1:obj.TestNum                  % k-fold cross validation
-                        test     = (obj.indices == j);           % Every iteration selects a fold as the sub test set 
+                        test     = (obj.indices == j);     % Each iteration selects one fold as the sub test set 
                         train    =~ test;                
                         TrainInsub  = obj.TrainIn(train, :);  
                         TrainOutsub = obj.TrainOut(train, :); 
-                        TestInsub  = obj.TrainIn(test, :); 
-                        TestOutsub = obj.TrainOut(test, :);
-                        [~, Rank] = sort(pdist2(TestInsub(:, PopDec(i, :)), TrainInsub(:, PopDec(i, :))), 2);
-                        [~, Out]  = max(hist(double(TrainOutsub(Rank(:, 1:obj.K))'), double(obj.Category)), [], 1);
-                        Out       = obj.Category(Out);
+                        TestInsub   = obj.TrainIn(test, :); 
+                        TestOutsub  = obj.TrainOut(test, :);
+                        [~, Rank]   = sort(pdist2(TestInsub(:, PopDec(i, :)), TrainInsub(:, PopDec(i, :))), 2);
+                        [~, Out]    = max(hist(double(TrainOutsub(Rank(:, 1:obj.K))'), double(obj.Category)), [], 1);
+                        Out         = obj.Category(Out);
                         BalanceAccuracy = 0;
-                        for t = 0:size(obj.Category, 1)-1
+                        for t = 0:size(obj.Category, 1) - 1
                             index = Out==t;
                             if sum(index) > 0
                                 BalanceAccuracy = BalanceAccuracy + mean(Out(index)==TestOutsub(index));
@@ -248,6 +248,7 @@ classdef FeatureSelectionNoisy < PROBLEM
 %             P = load(fullfile);
 %             R = P.NDpoints;
 %         end 
+
         %% Display a population in the objective space
         function DrawObj(obj, Population)
             Draw(Population.objs, {'Classification error rate', 'Selected feature ratio', []});
