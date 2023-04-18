@@ -91,12 +91,12 @@ classdef FeatureSelectionNoisy < PROBLEM
     properties(Access = private)
         TrainIn;    % Input of training set
         TrainOut;   % Output of training set
-        ValidIn;    % Input of validation set
-        ValidOut;   % Output of validation set
+        TestIn;    % Input of validation set
+        TestOut;   % Output of validation set
         Category;   % Output label set
         indices;
         dataNo;
-        ValidationNum;
+        TestNum;
         K;          % The number of nearest neighbor in KNN
     end
 
@@ -137,6 +137,7 @@ classdef FeatureSelectionNoisy < PROBLEM
             Data.X = Data.X(randIndex',:);
             Data.Y = Data.Y(randIndex',:);
 
+
             %% Add noise to each feature
             noiseIndex = randperm(size(Data.X, 2), round(NoiseLevel./100.*size(Data.X, 2)));
             noiseVal = rand(size(Data.X, 1), round(NoiseLevel./100.*size(Data.X, 2)));
@@ -150,15 +151,15 @@ classdef FeatureSelectionNoisy < PROBLEM
             obj.Category = unique(Data.Y);
             %% Divide the training set and test set
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            obj.TrainX  = Data.X(1:ceil(end*0.7), 1:end);
+            obj.TrainX = Data.X(1:ceil(end*0.7), 1:end);
             obj.TrainY = Data.Y(1:ceil(end*0.7), 1:end);
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             obj.TrainIn  = Data.X(1:ceil(end*0.7), 1:end);
             obj.TrainOut = Data.Y(1:ceil(end*0.7), 1:end);
-            obj.ValidIn  = Data.X(ceil(end*0.7)+1:end, 1:end);
-            obj.ValidOut = Data.Y(ceil(end*0.7)+1:end, 1:end);
-            obj.ValidationNum = 5;   % Produce 5 folds 
-            obj.indices  = crossvalind('Kfold', size(obj.TrainIn,1), obj.ValidationNum);     % Produce 5 folds 
+            obj.TestIn   = Data.X(ceil(end*0.7)+1:end, 1:end);
+            obj.TestOut  = Data.Y(ceil(end*0.7)+1:end, 1:end);
+            obj.TestNum  = 5;   % Produce 5 folds 
+            obj.indices  = crossvalind('Kfold', size(obj.TrainIn,1), obj.TestNum);     % Produce 5 folds 
             obj.K        = 5;   % The number of nearest neighbor in KNN
             % Number of objectives and features
             obj.M        = objectiveNo;
@@ -183,26 +184,26 @@ classdef FeatureSelectionNoisy < PROBLEM
                 PopDec = logical(PopDec);                 
                 for i = 1 : size(PopObj,1)
                     sumAccuracyRatio = 0;
-                    for j = 1:obj.ValidationNum                  % l-fold cross validation
-                        test     = (obj.indices == j);           % Every iteration selects a fold as the test set 
+                    for j = 1:obj.TestNum                  % k-fold cross validation
+                        test     = (obj.indices == j);           % Every iteration selects a fold as the sub test set 
                         train    =~ test;                
                         TrainInsub  = obj.TrainIn(train, :);  
                         TrainOutsub = obj.TrainOut(train, :); 
-                        ValidInsub  = obj.TrainIn(test, :); 
-                        ValidOutsub = obj.TrainOut(test, :);
-                        [~, Rank] = sort(pdist2(ValidInsub(:, PopDec(i, :)), TrainInsub(:, PopDec(i, :))), 2);
+                        TestInsub  = obj.TrainIn(test, :); 
+                        TestOutsub = obj.TrainOut(test, :);
+                        [~, Rank] = sort(pdist2(TestInsub(:, PopDec(i, :)), TrainInsub(:, PopDec(i, :))), 2);
                         [~, Out]  = max(hist(double(TrainOutsub(Rank(:, 1:obj.K))'), double(obj.Category)), [], 1);
                         Out       = obj.Category(Out);
                         BalanceAccuracy = 0;
                         for t = 0:size(obj.Category, 1)-1
                             index = Out==t;
                             if sum(index) > 0
-                                BalanceAccuracy = BalanceAccuracy + mean(Out(index)==ValidOutsub(index));
+                                BalanceAccuracy = BalanceAccuracy + mean(Out(index)==TestOutsub(index));
                             end
                         end
                         sumAccuracyRatio   = sumAccuracyRatio + BalanceAccuracy./size(obj.Category, 1);
                     end
-                    AccuracyRatio = sumAccuracyRatio./obj.ValidationNum;
+                    AccuracyRatio = sumAccuracyRatio./obj.TestNum;
                     errorRatio    = 1 - AccuracyRatio;
                     switch obj.M
                         case 1    % Single-objective feature selection
@@ -217,14 +218,14 @@ classdef FeatureSelectionNoisy < PROBLEM
                 %%%%% For test set %%%%%
                 PopDec = logical(PopDec);
                 for i = 1 : size(PopObj, 1)
-                    [~, Rank] = sort(pdist2(obj.ValidIn(:, PopDec(i, :)), obj.TrainIn(:, PopDec(i, :))), 2);
+                    [~, Rank] = sort(pdist2(obj.TestIn(:, PopDec(i, :)), obj.TrainIn(:, PopDec(i, :))), 2);
                     [~, Out]  = max(hist(double(obj.TrainOut(Rank(:, 1:obj.K)))', double(obj.Category)), [], 1);
                     Out       = obj.Category(Out);
                     BalancedAccuracy = 0;
                     for t = 0:size(obj.Category, 1)-1
                         index = Out==t;
                         if sum(index) > 0
-                            BalancedAccuracy = BalancedAccuracy + mean(Out(index)==obj.ValidOut(index));
+                            BalancedAccuracy = BalancedAccuracy + mean(Out(index)==obj.TestOut(index));
                         end
                     end
                     BalancedError = 1 - BalancedAccuracy./size(obj.Category, 1);
@@ -239,7 +240,26 @@ classdef FeatureSelectionNoisy < PROBLEM
                 end 
             end
         end
-       
+        
+        %% Calculate constraints
+%         function PopCon = CalCon(obj, PopDec)
+%             PopObj      = obj.CalObj(PopDec);
+%             ind         = ones(1, obj.D);   % The feature subset that select all features
+%             [~, Rank]   = sort(pdist2(obj.TrainIn(:, ind), obj.TrainIn(:, ind)), 2);
+%             [~, Out]    = max(hist(double(obj.TrainOut(Rank(:, 1:obj.K))'), double(obj.Category)), [], 1);
+%             Acc         = mean(obj.Category(Out)==obj.TrainOut);
+%             Err         = 1 - Acc;
+%             PopCon(:,1) = PopObj(:,1) - Err; % The classification error should smaller than that of using all features
+%         end
+        
+        %% Generate points on the Pareto front
+%         function R = GetOptimum(obj, N)
+%             %addpath(genpath('scripts'));
+%             dataNo = obj.dataNo;
+%             fullfile = ['FS_', num2str(dataNo), '.mat'];
+%             P = load(fullfile);
+%             R = P.NDpoints;
+%         end 
         %% Display a population in the objective space
         function DrawObj(obj, Population)
             Draw(Population.objs, {'Classification error rate', 'Selected feature ratio', []});
