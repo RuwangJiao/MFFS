@@ -90,8 +90,8 @@ classdef FeatureSelectionNoisy < PROBLEM
     properties(Access = private)
         TrainIn;    % Input of training set
         TrainOut;   % Output of training set
-        TestIn;     % Input of validation set
-        TestOut;    % Output of validation set
+        TestIn;     % Input of test set
+        TestOut;    % Output of test set
         Category;   % Output label set
         indices;
         dataNo;
