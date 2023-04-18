@@ -7,7 +7,6 @@ classdef FeatureSelectionNoisy < PROBLEM
 % NoiseLevel --- 0 --- Percentage(%) noise added 
 
 %------------------------------- Reference --------------------------------
-
 % Copyright (c) 2021 BIMK Group. You are free to use the PlatEMO for
 % research purposes. All publications which use this platform or any code
 % in the platform should acknowledge the use of "PlatEMO" and reference "Ye
