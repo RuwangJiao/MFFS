@@ -240,17 +240,6 @@ classdef FeatureSelectionNoisy < PROBLEM
             end
         end
         
-        %% Calculate constraints
-%         function PopCon = CalCon(obj, PopDec)
-%             PopObj      = obj.CalObj(PopDec);
-%             ind         = ones(1, obj.D);   % The feature subset that select all features
-%             [~, Rank]   = sort(pdist2(obj.TrainIn(:, ind), obj.TrainIn(:, ind)), 2);
-%             [~, Out]    = max(hist(double(obj.TrainOut(Rank(:, 1:obj.K))'), double(obj.Category)), [], 1);
-%             Acc         = mean(obj.Category(Out)==obj.TrainOut);
-%             Err         = 1 - Acc;
-%             PopCon(:,1) = PopObj(:,1) - Err; % The classification error should smaller than that of using all features
-%         end
-        
         %% Generate points on the Pareto front
 %         function R = GetOptimum(obj, N)
 %             %addpath(genpath('scripts'));
